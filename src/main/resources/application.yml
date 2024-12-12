@@ -1,0 +1,10 @@
+application:
+  name: proteccion
+  security:
+    jwt:
+      secret-key: w7E5Tp9NwXZhNxlCQ9v8PLf6T3ME9U7ZhDxWqLDF9pQ=
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
+
+
