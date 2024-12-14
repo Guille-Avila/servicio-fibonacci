@@ -1,63 +1,49 @@
 package com.prueba.proteccion.controller;
 
-import com.prueba.proteccion.controllers.FibonacciController;
-import com.prueba.proteccion.services.FibonacciService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prueba.proteccion.entities.FibonacciEntity;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
-
-import java.util.List;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@WebMvcTest(FibonacciController.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
+@Transactional
 public class FibonacciControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    private final String URL = "/fibonacci";
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Test
-    public void testCalcularFibonacci() throws Exception {
+   @Test
+   public void test_FibonacciController_Created() throws Exception {
+       FibonacciEntity fibonacciInput = new FibonacciEntity();
+       fibonacciInput.setFormatoHora("12:23:04");
 
-        // POST
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"formatoHora\": \"12:23:04\"}"))
-                .andReturn();
+//       when(fibonacciService.guardarFibonacci(any(FibonacciEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        int status = result.getResponse().getStatus();
-        assertEquals("Estado de respuesta incorrecto", HttpStatus.CREATED.value(), status);
+      String jsonRequest = objectMapper.writeValueAsString(fibonacciInput);
 
-        String responseContent = result.getResponse().getContentAsString();
-        assertNotNull(responseContent);
+      ResultActions response =  mockMvc.perform(post("/fibonacci")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(jsonRequest));
 
-        mockMvc.perform(MockMvcRequestBuilders.post(URL)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"formatoHora\": \"12:23:04\"}"))
-//                .andDo(print())
-//                .andExpect(jsonPath("$.formatoHora").value("12:23:04"))
-//                .andExpect(jsonPath("$.serie").value("[21, 13, 8, 5, 3, 2]")) // Aquí comparamos la serie como un String
-//                .andExpect(jsonPath("$.serie.length()").value(6))
-                ;
+      response.andExpect(status().isCreated())
+              .andExpect(jsonPath("$.formatoHora").value("12:23:04"))
+              .andExpect(jsonPath("$.serie").isString())
+              .andExpect(jsonPath("$.serie").value("[21, 13, 8, 5, 3, 2]"));
+
     }
 
 }

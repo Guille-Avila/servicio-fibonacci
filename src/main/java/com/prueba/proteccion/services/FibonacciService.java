@@ -12,10 +12,10 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class FibonacciService {
-    private final FibonacciRepository productoRepository;
+    private final FibonacciRepository fibonacciRepository;
 
     public List<FibonacciEntity> listarFibonaccis() {
-        return productoRepository.findAll();
+        return fibonacciRepository.findAll();
     }
 
     public FibonacciEntity guardarFibonacci(FibonacciEntity fibonacci) {
@@ -60,7 +60,7 @@ public class FibonacciService {
 
         fibonacci.setSerie(fibonacciSerie.toString());
 
-        return productoRepository.save(fibonacci);
+        return fibonacciRepository.save(fibonacci);
     }
 
     public List<Integer> generarFibonacci(int primero, int segundo, int cantidad) {
